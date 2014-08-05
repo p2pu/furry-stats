@@ -1,0 +1,20 @@
+{
+  "name": "dev-stats",
+  "version": "0.0.0",
+  "description": "Stats for dev projects",
+  "main": "stats.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "stats"
+  ],
+  "author": "Dirk Uys <dirkcuys@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.0.2",
+    "q": "^1.0.1",
+    "request": "^2.39.0",
+    "yaml": "^0.2.3"
+  }
+}
