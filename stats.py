@@ -1,5 +1,5 @@
 import discourse
-import config
+from config import config
 
 def getDiscourseStats(forum_url):
     forum_config = config.forums.get(forum_url)
