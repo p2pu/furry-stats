@@ -1,8 +1,5 @@
 import requests
 
-from beaker.cache import CacheManager
-from beaker.util import parse_cache_config_options
-
 class DiscourseApi(object):
     def __init__(self, forum_url, credentials):
         self.forum_url = forum_url
@@ -12,14 +9,7 @@ class DiscourseApi(object):
             'cache.data_dir': '/tmp/' + forum_url + '-cache/data',
             'cache.lock_dir': '/tmp/' + forum_url + '-cache/lock'
         }
-        cache = CacheManager(**parse_cache_config_options(cache_opts))
-        self.cache = cache
-
-        if cache:
-            # TODO initialize the cache only if it's supplied 
-            #self.getTopic = cache.cache('discourse.DiscourseApi.getTopic', expire=86400)(self.getTopic)
-            #self.getPost = cache.cache('discourse.DiscourseApi.getPost')(self.getPost)
-            pass
+        self.post_cache = {}
 
 
     def _get(self, url):
@@ -48,13 +38,18 @@ class DiscourseApi(object):
             topics += resp.json()['topic_list']['topics']
         return topics
 
-    #@cache.cache('discourse.DiscourseApi.getTopic', expire=86400)
+
     def getTopic(self, topic_id):
         resp = self._get('/t/{0}.json'.format(topic_id))
+        topic = resp.json()
+        for post in topic['post_stream']['posts']:
+            self.post_cache[post['id']] = post
         return resp.json()
 
 
-    #@cache.cache('discourse.DiscourseApi.getPost')
     def getPost(self, post_id):
+        if post_id in self.post_cache:
+            return self.post_cache[post_id]
         resp = self._get('/posts/{0}.json'.format(post_id))
+        self.post_cache[post_id] = resp.json()
         return resp.json()
