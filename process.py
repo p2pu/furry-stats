@@ -39,15 +39,11 @@ def process_discourse_stats(data):
 
     weekly = Counter(['{0[0]}-{0[1]:02}'.format(d['created_at'].date().isocalendar()[:2]) for d in event_list]).items()
     weekly.sort(key=lambda x: x[0])
+    format_date = lambda d : iso_to_gregorian(*[ int(i) for i in d.split('-')] + [1]).strftime('%Y-%m-%d') 
     weekly_data = {
-        "labels": [iso_to_gregorian(*[ int(i) for i in d[0].split('-')] + [1]).strftime('%Y-%m-%d') for d in weekly],
+        "labels": [format_date(d[0]) for d in weekly],
         "values": [d[1] for d in weekly],
-        "data": [
-            [
-                iso_to_gregorian(*[ int(i) for i in d[0].split('-')] + [1]).strftime('%Y-%m-%d'),
-                d[1]
-            ] for d in weekly 
-        ]
+        "data": [ [format_date(d[0]), d[1]] for d in weekly ]
     }
     with open('weekly.json', 'w') as outfile:
         json.dump(weekly_data, outfile)
