@@ -53,3 +53,8 @@ class DiscourseApi(object):
         resp = self._get('/posts/{0}.json'.format(post_id))
         self.post_cache[post_id] = resp.json()
         return resp.json()
+
+
+    def getUsers(self):
+        resp = self._get('/admin/users/list/all.json')
+        return resp.json()
