@@ -15,6 +15,40 @@ def iso_to_gregorian(iso_year, iso_week, iso_day):
     return year_start + datetime.timedelta(days=iso_day-1, weeks=iso_week-1)
 
 
+def aggregate_by(data, key_f, sum_f):
+    aggregated_data = {}
+    for event in data:
+        #week = datetime.datetime.strptime(event['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").date().isocalendar()[:2]
+        key = key_f(event)
+        if key in aggregated_data:
+            aggregated_data[key] += [event]
+        else:
+            aggregated_data[key] = [event]
+
+    aggregated = [ [key, sum_f(val), val] for key,val in aggregated_data.items() ]
+    aggregated.sort(key=lambda x: x[0])
+    return aggregated
+
+
+def get_number_of_active_users_by_week_2(data):
+    def weekly(event):
+        return datetime.datetime.strptime(event['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").date().isocalendar()[:2]
+
+    def num_of_users(event):
+        return len(set([a['username'] for a in event]))
+
+    aggregated = aggregate_by(data, weekly, num_of_users)
+    aggregated = [ [iso_to_gregorian(x[0][0], x[0][1], 1), x[1], x[2] ] for x in aggregated]
+
+    weekly_data = {
+        "labels": [d[0].strftime('%Y-%m-%d')  for d in aggregated],
+        "values": [d[1] for d in aggregated],
+        "data": [ [d[0].strftime('%Y-%m-%d'), d[1], {'users': list(set([ event['username'] for event in d[2] ])) } ] for d in aggregated ]
+    }
+
+    return weekly_data
+
+
 def get_number_of_active_users_by_week(data):
     weekly_users = {}
     for event in data:

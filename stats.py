@@ -19,4 +19,4 @@ def getDiscourseStats(forum_url):
         print('Get post {0} data'.format(post_id))
         post_data = api.getPost(post_id)
         posts += [post_data]
-    return posts
+    return posts, topics
